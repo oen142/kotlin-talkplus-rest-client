@@ -1,8 +1,6 @@
 package com.wani.talkplus
 
-import com.google.gson.annotations.SerializedName
 import com.wani.talkplus.request.body.user.CreateUserRequestBody
-import com.wani.talkplus.request.header.user.CreateUserRequestHeader
 import com.wani.talkplus.response.user.CreateUserResponse
 import retrofit2.Call
 import retrofit2.http.Body
