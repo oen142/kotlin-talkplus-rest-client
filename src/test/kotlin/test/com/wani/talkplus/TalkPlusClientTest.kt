@@ -11,7 +11,6 @@ class TalkPlusClientTest {
 
     private lateinit var client: TalkPlusClient
 
-    @BeforeEach
     fun setUp() {
         val appKey = "앱 키를 넣으세요"
         val appId = "앱 아이디를 넣으세요"
@@ -21,7 +20,6 @@ class TalkPlusClientTest {
         )
     }
 
-    @Test
     fun `유저를 생성합니다`() {
         val request = CreateUserRequestBody(
             userId = "testuser",
