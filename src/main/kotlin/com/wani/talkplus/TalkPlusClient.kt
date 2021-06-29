@@ -3,24 +3,34 @@ package com.wani.talkplus
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import com.google.gson.JsonSyntaxException
+import com.wani.talkplus.exception.TalkPlusResponseException
+import com.wani.talkplus.request.body.user.CreateUserRequestBody
+import com.wani.talkplus.response.user.CreateUserResponse
 import okhttp3.OkHttpClient
+import retrofit2.HttpException
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Url
 import java.io.IOException
+import java.net.URL
 import java.util.concurrent.TimeUnit
+import kotlin.jvm.Throws
 
 class TalkPlusClient(
-    val appId: String,
-    val appKey: String
+    private val appId: String,
+    private val appKey: String
 ) {
     companion object {
         private const val API_URL = "https://api.talkplus.io"
-        private const val APP_VERSION = "/v.13"
+        private const val APP_VERSION = "/v1.3"
         private const val API = "/api"
-        const val FULL_API_URL = API_URL + APP_VERSION + API
+        private const val URL_END = "/"
+        const val FULL_API_URL = API_URL + APP_VERSION + API + URL_END
 
     }
+
+    private val talkPlus: TalkPlus
 
     init {
         val client = OkHttpClient.Builder()
@@ -29,12 +39,31 @@ class TalkPlusClient(
             .build()
 
         val retrofit = Retrofit.Builder()
-            .baseUrl(API_URL + APP_VERSION + FULL_API_URL)
+            .baseUrl(URL(FULL_API_URL))
             .addConverterFactory(buildGsonConverter())
             .client(client)
             .build()
 
-        retrofit.create(this::class.java)
+
+        talkPlus = retrofit.create(TalkPlus::class.java)
+    }
+
+    @Throws(TalkPlusResponseException::class, IOException::class)
+    fun createUser(contentType: String?, request: CreateUserRequestBody): CreateUserResponse? {
+        val call = talkPlus.createUser(
+            contentType = contentType ?: "",
+            apiKey = appKey,
+            appId = appId,
+            request = request
+        )
+
+        val response = call.execute()
+
+        if (!response.isSuccessful) {
+            throw TalkPlusResponseException(getExceptionMessage(response), HttpException(response))
+        }
+
+        return response.body()
     }
 
     private fun buildGsonConverter(): GsonConverterFactory {
