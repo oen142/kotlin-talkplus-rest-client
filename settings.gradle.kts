@@ -1,0 +1,1 @@
+rootProject.name = "kotlin-talkplus-rest-clinet"
